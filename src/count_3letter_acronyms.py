@@ -1,5 +1,12 @@
 import pandas as pd
 from collections import Counter
+from pathlib import Path
+
+# Define the project base directory (auto-detect)
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Define paths relative to the project root
+INPUT_FILE = BASE_DIR / "data/DataSample.xlsx"
 
 def count_departure_acronyms(file_path):
     # Load the Excel file
@@ -26,5 +33,5 @@ def count_departure_acronyms(file_path):
         print(f"{acronym}: {count}")
 
 # Example usage
-count_departure_acronyms("DataSample.xlsx")
+count_departure_acronyms(INPUT_FILE)
  
