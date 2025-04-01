@@ -1,57 +1,73 @@
 import pandas as pd
+import matplotlib.pyplot as plt
 from collections import Counter
 from pathlib import Path
 
-# Define o diretório base do projeto (auto-detecção)
+# Define the project base directory (auto-detection)
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Define o caminho do arquivo de entrada
+# Define the input file path
 INPUT_FILE = BASE_DIR / "data/DataSample.xlsx"
 
+def format_time(seconds):
+    hours = int(seconds // 3600)
+    minutes = int((seconds % 3600) // 60)
+    seconds = int(seconds % 60)
+    return f"{hours}h {minutes}m {seconds}s"
+
 def calculate_time_statistics(file_path):
-    # Carrega o arquivo Excel
+    # Load the Excel file
     xls = pd.ExcelFile(file_path)
     
-    # Verifica se a planilha existe
+    # Check if the sheet exists
     if 'APULastStart' not in xls.sheet_names:
         print("Sheet 'APULastStart' not found in the Excel file.")
         return
     
     df = xls.parse('APULastStart')
     
-    # Verifica se as colunas necessárias existem
+    # Check if the necessary columns exist
     if 'StartUTC' not in df.columns or 'EndUTC' not in df.columns:
         print("Columns 'StartUTC' or 'EndUTC' not found in the sheet.")
         return
     
-    # Converte colunas para datetime
+    # Convert columns to datetime
     df['StartUTC'] = pd.to_datetime(df['StartUTC'], errors='coerce')
     df['EndUTC'] = pd.to_datetime(df['EndUTC'], errors='coerce')
     
-    # Remove valores inválidos
+    # Remove invalid values
     df = df.dropna(subset=['StartUTC', 'EndUTC'])
     
-    # Calcula o tempo decorrido em segundos
+    # Calculate elapsed time in seconds
     df['ElapsedSeconds'] = (df['EndUTC'] - df['StartUTC']).dt.total_seconds()
     
-    # Remove valores negativos (caso existam erros nos dados)
+    # Remove negative values (in case of data errors)
     df = df[df['ElapsedSeconds'] >= 0]
     
     if df.empty:
         print("No valid elapsed time data available.")
         return
     
-    # Calcula estatísticas
+    # Calculate statistics
     avg_time = df['ElapsedSeconds'].mean()
     mode_time = df['ElapsedSeconds'].mode().iloc[0] if not df['ElapsedSeconds'].mode().empty else None
     min_time = df['ElapsedSeconds'].min()
     max_time = df['ElapsedSeconds'].max()
     
-    # Exibe os resultados
-    print(f"Média do tempo decorrido: {avg_time:.2f} segundos")
-    print(f"Moda do tempo decorrido: {mode_time:.2f} segundos")
-    print(f"Menor tempo decorrido: {min_time:.2f} segundos")
-    print(f"Maior tempo decorrido: {max_time:.2f} segundos")
+    # Display results
+    print(f"Average elapsed time: {format_time(avg_time)}")
+    print(f"Mode of elapsed time: {format_time(mode_time) if mode_time is not None else 'N/A'}")
+    print(f"Shortest elapsed time: {format_time(min_time)}")
+    print(f"Longest elapsed time: {format_time(max_time)}")
+    
+    # Plot histogram of elapsed times
+    plt.figure(figsize=(10, 5))
+    plt.hist(df['ElapsedSeconds'] / 3600, bins=30, edgecolor='black', alpha=0.7)  # Convert seconds to hours
+    plt.xlabel("Elapsed Time (Hours)")
+    plt.ylabel("Frequency")
+    plt.title("Distribution of Flight Durations")
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+    plt.show()
 
-# Exemplo de uso
+# Example usage
 calculate_time_statistics(INPUT_FILE)
