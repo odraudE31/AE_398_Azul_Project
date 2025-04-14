@@ -27,7 +27,10 @@ def is_mgt(row):
     mgt = aircrafts.get(aircraft)
     if mgt is None:
         return 'NULL'
-    return planned_ground_time >= mgt
+    elif planned_ground_time >= mgt:
+        return 1
+    elif planned_ground_time < mgt:
+        return 0
 
 # Apply function line by line
 d0d14['IS_MGT'] = d0d14.apply(is_mgt, axis=1)
