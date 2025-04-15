@@ -1,18 +1,16 @@
 import pandas as pd
+import numpy as np
 from pathlib import Path
 
 # Define the project base directory and input file
 BASE_DIR = Path(__file__).resolve().parent.parent
+INPUT_FILE = BASE_DIR / "data/D0D14.parquet"
 
-INPUT_FILE = BASE_DIR / "data/DataSample.xlsx"
+# Load Parquet file
+d0d14 = pd.read_parquet(INPUT_FILE)
 
-# Load Excel file and read sheets
-xls = pd.ExcelFile(INPUT_FILE)
-
-d0d14 = xls.parse('D0D14')
-
+# Aircraft MGT dictionary
 aircrafts = {
-# aircraft : MGT
     'ATR': 30,
     'E1': 35,
     'E2': 40,
@@ -26,17 +24,16 @@ def is_mgt(row):
 
     mgt = aircrafts.get(aircraft)
     if mgt is None:
-        return 'NULL'
+        return np.nan  # usa NaN para manter tipo numérico
     elif planned_ground_time >= mgt:
         return 1
     elif planned_ground_time < mgt:
         return 0
 
-# Apply function line by line
+# Apply the function to add the new column 'IS_MGT'
 d0d14['IS_MGT'] = d0d14.apply(is_mgt, axis=1)
 
-# Save modified D0D14 back to the Excel file
-with pd.ExcelWriter(INPUT_FILE, engine='openpyxl', mode='a', if_sheet_exists='replace') as writer:
-    d0d14.to_excel(writer, sheet_name='D0D14', index=False)
+# Save modified DataFrame to Parquet file
+d0d14.to_parquet(INPUT_FILE, index=False)
 
-print("✅ 'nova_coluna' adicionada à planilha 'D0D14'.")
+print("✅ 'IS_MGT' added to the Parquet file.")
