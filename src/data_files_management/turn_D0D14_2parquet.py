@@ -2,7 +2,7 @@ import pandas as pd
 from pathlib import Path
 
 # Define the project base directory (auto-detect)
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 # Define paths relative to the project root
 INPUT_FILE = BASE_DIR / "data/DataSample.xlsx"

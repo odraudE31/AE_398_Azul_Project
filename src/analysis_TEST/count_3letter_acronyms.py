@@ -3,7 +3,7 @@ from collections import Counter
 from pathlib import Path
 
 # Define o diretório base do projeto (auto-detecção)
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 # Define o caminho do arquivo de entrada
 INPUT_FILE = BASE_DIR / "data/DataSample.xlsx"

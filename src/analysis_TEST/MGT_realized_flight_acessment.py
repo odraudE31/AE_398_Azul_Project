@@ -1,9 +1,15 @@
+"""
+This fixes the use of GROUNDTIME_PLANNED and uses 
+GROUNDTIME_REALIZED, that is the actual time the
+aircraft was on ground
+"""
+
 import pandas as pd
 import numpy as np
 from pathlib import Path
 
 # Define the project base directory and input file
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 INPUT_FILE = BASE_DIR / "data/D0D14.parquet"
 
 # Load Parquet file
@@ -20,11 +26,11 @@ aircrafts = {
 
 def is_mgt(row):
     aircraft = row['LATEST_FLEET']
-    planned_ground_time = row['GROUNDTIME_PLANNED_MIN']
+    planned_ground_time = row['GROUNDTIME_REALIZED_MIN']
 
     mgt = aircrafts.get(aircraft)
     if mgt is None:
-        return np.nan  # usa NaN para manter tipo numérico
+        return np.nan  # uses NaN to mantain the number type
     elif planned_ground_time >= mgt:
         return 1
     elif planned_ground_time < mgt:
